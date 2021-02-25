@@ -38,30 +38,27 @@ data:
     add_header X—Content—Type—Options nosniff; 
     add_header X—XSS—Protection "1; mode=block";
 
-    location = /config.js 
-    {
+    location = /config.js {
         alias /config/config.js;
     }
 
-    location = /interface_config.js 
-    { 
+    location = /interface_config.js { 
         alias /config/interface_config.js;
     }
 
-    location = /external_api.js 
-    {
+    location = /external_api.js {
         alias /usr/share/jitsi—meet/libs/external_api.min.js;
     }
 
     # ensure all static content can always be found first
-    location -., ^/(libslcssIstaticlimageslfontsllanglsoundslconnection_optimizationl.well—known)/(.*)$ 
+    location ~ ^/(libs|css|static|images|fonts|lang|sounds|connection_optimization|.well-known)/(.*)$
     {   
         add_header 'Access—Control—Allow—Origin' *';
         alias /usr/share/jitsi—meet/$1/$2;
     }
 
     # colibri (JVB) websockets
-    location - A/colibri—ws/([a—zA-20-9—\.\:]+)/(.*) { 
+    location ~ ^/colibri-ws/([a-zA-Z0-9-\.\:]+)/(.*) {
         proxy_pass http://$1/colibri—ws/$1/$2$is_args$args; 
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -71,20 +68,17 @@ data:
 
     # BOSH
     location = /http—bind {
-        proxy_pass http://sfo-2—meet.streamchatline.com:5280/http—bind; 
+        proxy_pass http://shard0.meet-test.intranet.karkinos.in:5280/http—bind; 
         proxy_set_header X—Forwarded—For $remote_addr;
         proxy_set_header Host meet.jitsi;
     }
 
-    location -- ^/(EA/?&:11+)$ { 
+    location ~ ^/([^/?&:'"]+)$ { 
         try_files $uri @root_path;
     }
     location @root_path {
         rewrite ^/(.*)$ / break;
     }
-    
-    sed -i "s/l:9090/l:30900/" /defaults/meet.conf
-
   interface_config.js: |
     /* eslint-disable no-unused-vars, no-var, max-len */
 
